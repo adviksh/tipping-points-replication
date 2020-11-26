@@ -3,7 +3,7 @@ tictoc::tic()
 
 
 # Parallel ----------------------------------------------------------------
-options(mc.cores = parallel::detectCores() - 1)
+options(mc.cores = parallel::detectCores())
 
 
 # Libraries ---------------------------------------------------------------
@@ -15,7 +15,6 @@ library(tidybayes)
 
 # Load Data ---------------------------------------------------------------
 message("Loading data...")
-
 tp_raw <- read_rds(here("temp", "tipping_samp.rds"))
 
 
@@ -24,7 +23,10 @@ tp <- tp_raw %>%
   filter(samp == TRUE)
 
 chi70 <- tp %>% 
-  filter(msa == 1600, base_year == "70") %>% 
+  filter(msa == 1600, base_year == "70",
+         !is.na(frac_minority),
+         !is.na(norm_chg_white)) %>% 
+  arrange(frac_minority) %>% 
   select(geo2000, frac_minority, norm_chg_white)
 
 ggplot(chi70,
@@ -32,6 +34,11 @@ ggplot(chi70,
   theme_bw() +
   geom_point() +
   geom_smooth()
+
+
+
+# Compile Model -----------------------------------------------------------
+stan_mod <- stan_model(file = here("stan", "toy_breakpoint.stan"))
 
 
 # Toy Data ----------------------------------------------------------------
@@ -46,8 +53,22 @@ toy_data <- list(N = n_toy,
                  x = toy$x,
                  y = toy$y)
 
-stan_mod <- stan_model(file = here("stan", "toy_breakpoint.stan"))
-
 fit_toy <- sampling(stan_mod, data = toy_data,
-                    chains = 6, iter = 1000, warmup = 250)
+                    chains = 6, iter = 2000, warmup = 250,
+                    par = c("lp"), include = FALSE)
 
+draws_toy <- tidy_draws(fit_toy) %>% 
+  mutate(s_x = toy_data$x[s])
+
+draws_toy %>% 
+  count(s_x)
+  
+
+# Fit Stan on Chi ---------------------------------------------------------
+chi_data <- list(N = nrow(chi70),
+                 x = chi70$frac_minority,
+                 y = chi70$norm_chg_white)
+
+fit_chi <- sampling(stan_mod, data = chi_data,
+                    chains = 12, iter = 2000, warmup = 250,
+                    par = c("lp"), include = FALSE)
