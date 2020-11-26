@@ -131,7 +131,7 @@ tidy_city_model <- function(model) {
     tidy() %>% 
     filter(term == "past") %>% 
     transmute(estimate = estimate,
-              n        = model$N) %>% 
+              n        = model$nobs) %>% 
     as_tibble()
 }
 
@@ -157,6 +157,8 @@ city_estimates <- city_models %>%
   unnest(estimates)
 
 
+# Combine Regressions -----------------------------------------------------
+message("Combining regressions...")
 repl_estimates <- bind_rows(mutate(pooled_estimates, 
                                    regression = "Pooled"),
                             mutate(city_estimates, 

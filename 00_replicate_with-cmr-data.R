@@ -188,7 +188,7 @@ tidy_city_model <- function(model) {
     tidy() %>% 
     filter(term == "past") %>% 
     transmute(estimate = estimate,
-              n        = model$N) %>% 
+              n        = model$nobs) %>% 
     as_tibble()
 }
 
@@ -214,39 +214,8 @@ city_estimates <- city_models %>%
   unnest(estimates)
 
 
-# Tidy City Models --------------------------------------------------------
-message("Processing by-city models...")
-tidy_city_model <- function(model) {
-  model %>% 
-    tidy() %>% 
-    filter(term == "past") %>% 
-    transmute(estimate = estimate,
-              n        = model$N) %>% 
-    as_tibble()
-}
-
-reweight_city_estimates <- function(estimate, n) {
-  
-  rw_tb <- data.frame(est = estimate, n = n)
-  mod   <- lm_robust(est ~ 1, data = rw_tb, se_type = "stata", weights = n)
-  
-  tidy_mod <- tidy(mod)
-  
-  transmute(tidy_mod,
-            estimate = estimate,
-            se = std.error)
-}
-
-city_estimates <- city_models %>% 
-  transmute(tip_method, base_year, y_nm,
-            model     = map(model, tidy_city_model)) %>% 
-  unnest(model) %>% 
-  group_by(tip_method, base_year, y_nm) %>% 
-  summarize(estimates = list(reweight_city_estimates(estimate, n)),
-            .groups = "drop") %>% 
-  unnest(estimates)
-
-
+# Combine Regressions -----------------------------------------------------
+message("Combining regressions...")
 repl_estimates <- bind_rows(mutate(pooled_estimates, 
                                    regression = "Pooled"),
                             mutate(city_estimates, 
