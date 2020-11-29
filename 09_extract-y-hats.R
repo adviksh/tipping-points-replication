@@ -38,10 +38,10 @@ fit_tb <- tibble(filename = fit_files,
 
 y_hat_tb <- fit_tb %>% 
   transmute(msa,
-            delta_tb = map(fit, summarize_deltas)) %>% 
-  unnest(delta_tb)
+            y_hat_tb = map(fit, get_y_hat)) %>% 
+  unnest(y_hat_tb)
 
 
 # Save --------------------------------------------------------------------
 message("Saving...")
-write_rds(bp_tb, here("out", "bayes_y_hats.rds"))
+write_rds(y_hat_tb, here("out", "bayes_y_hats.rds"))

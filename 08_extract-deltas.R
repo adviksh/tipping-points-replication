@@ -47,4 +47,4 @@ delta_tb <- fit_tb %>%
 
 # Save --------------------------------------------------------------------
 message("Saving...")
-write_rds(bp_tb, here("out", "bayes_deltas.rds"))
+write_rds(delta_tb, here("out", "bayes_deltas.rds"))
