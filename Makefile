@@ -21,6 +21,7 @@ all: stan/breakpoint-regression.rds
 all: $(msa_models)
 all: out/bayes_breakpoints.rds
 all: out/bayes_deltas.rds
+all: out/bayes_y_hats.rds
 
 # Recipes ----------------------------------------------------------------------
 $(dirs):
@@ -75,4 +76,8 @@ out/bayes_breakpoints.rds: 07_extract-breakpoints.R
 
 out/bayes_deltas.rds: $(msa_models)
 out/bayes_deltas.rds: 08_extract-deltas.R
+	$(call r, $<)
+	
+out/bayes_y_hats.rds: $(msa_models)
+out/bayes_y_hats.rds: 09_extract-y-hats.R
 	$(call r, $<)
