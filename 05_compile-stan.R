@@ -14,10 +14,6 @@ model <- stan_model(file = here("stan", "breakpoint-regression.stan"),
                     verbose = TRUE)
 
 
-
-# Save Model --------------------------------------------------------------
-saveRDS(model, here("temp", "breakpoint-regression.rds"))
-
 # Done --------------------------------------------------------------------
 message("Done.")
 tictoc::toc()

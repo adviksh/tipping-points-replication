@@ -36,18 +36,25 @@ city <- tp_raw %>%
 
 K <- 4
 bp <- seq(2, 40, by = 1)
-city_data<- list(N = nrow(city),
-                 K = K,
-                 B = length(bp),
-                 x_mat = poly(city$frac_minority, degree = K),
-                 bp = bp,
-                 x = city$frac_minority,
-                 y = city$norm_chg_white)
+x_poly <- poly(city$frac_minority, degree = K)
+x_pred <- seq(0, 100)
+x_pred_mat <- predict(x_poly, x_pred)
+
+city_data <- list(N = nrow(city),
+                  K = K,
+                  B = length(bp),
+                  x_mat = x_poly,
+                  bp = bp,
+                  x = city$frac_minority,
+                  y = city$norm_chg_white,
+                  N_pred = length(x_pred),
+                  x_pred = x_pred,
+                  x_pred_mat = x_pred_mat)
 
 
 # Load Stan Model ---------------------------------------------------------
 message("Loading stan model...")
-model <- read_rds(here("temp", "breakpoint-regression.rds"))
+model <- read_rds(here("stan", "breakpoint-regression.rds"))
 
 
 # Fit ---------------------------------------------------------------------
