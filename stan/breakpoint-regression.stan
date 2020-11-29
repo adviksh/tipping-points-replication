@@ -50,7 +50,7 @@ transformed parameters{
 }
 
 model {
-  alpha ~ normal(0, 50);
+  alpha ~ normal(0, 100);
   beta  ~ normal(0, 100);
   delta ~ normal(0, 20);
   sigma ~ normal(0, 100);
