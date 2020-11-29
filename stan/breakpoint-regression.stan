@@ -9,6 +9,9 @@ data {
   vector[N] x; // x values as a vector (for comparing to break points)
   vector[N] y; // y values as a vector
   
+  int<lower=1> N_pred;     // number of points to generate predictions for
+  vector[N_pred]   x_pred;
+  matrix[N_pred,K] x_pred_mat; // x-values to make predictions for
 }
 
 transformed data {
@@ -57,5 +60,14 @@ model {
 
 generated quantities {
   real bp_sim;
+  vector[N_pred] y_hat;
+  
   bp_sim = bp[categorical_logit_rng(lp)];
+  {
+    vector[N_pred] mu_pred = alpha + x_pred_mat * beta;
+    for (n in 1:N_pred) {
+      mu_pred[n] = mu_pred[n] + (x_pred[n] < bp_sim ? 0 : delta);
+      y_hat[n]  = student_t_rng(nu, mu_pred[n], sigma);   
+    }
+  }
 }
