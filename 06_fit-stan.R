@@ -64,7 +64,8 @@ fit <- sampling(model, data = city_data,
                 warmup = 1000,
                 iter = 2000,
                 pars = c("xb"),
-                include = FALSE)
+                include = FALSE,
+                seed = 20310)
 
 message("There were ",
         rstan::get_num_divergent(fit),
