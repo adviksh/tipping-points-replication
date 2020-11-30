@@ -27,7 +27,6 @@ message("Loading data...")
 fit_files <- list.files(here("temp"),
                         pattern = "bp-reg_msa-[0-9]+.rds",
                         full.names = TRUE)
-fit_files <- head(fit_files, 2)
 
 
 # Extract Deltas ----------------------------------------------------------

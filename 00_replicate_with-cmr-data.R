@@ -205,9 +205,12 @@ reweight_city_estimates <- function(estimate, n) {
 }
 
 city_estimates <- city_models %>% 
-  transmute(tip_method, base_year, y_nm,
+  transmute(msa = as.integer(as.character(msa)), 
+            tip_method, base_year, y_nm,
             model     = map(model, tidy_city_model)) %>% 
-  unnest(model) %>% 
+  unnest(model)
+
+city_estimates_avg <- city_estimates %>%   
   group_by(tip_method, base_year, y_nm) %>% 
   summarize(estimates = list(reweight_city_estimates(estimate, n)),
             .groups = "drop") %>% 
@@ -218,13 +221,14 @@ city_estimates <- city_models %>%
 message("Combining regressions...")
 repl_estimates <- bind_rows(mutate(pooled_estimates, 
                                    regression = "Pooled"),
-                            mutate(city_estimates, 
+                            mutate(city_estimates_avg, 
                                    regression = "Fully interacted")) %>% 
   mutate(status = "Replication (CMR Data)")
 
 
 # Save --------------------------------------------------------------------
 message("Saving...")
+write_rds(city_estimates, here("temp", "estimates_delta-cmr.rds"))
 write_rds(repl_estimates, here("temp", "estimates_repl-cmr.rds"))
 
 

@@ -22,6 +22,7 @@ all: $(msa_models)
 all: out/bayes_breakpoints.rds
 all: out/bayes_deltas.rds
 all: out/bayes_y_hats.rds
+all: out/extenstion_tipping-points.png
 
 # Recipes ----------------------------------------------------------------------
 $(dirs):
@@ -80,4 +81,9 @@ out/bayes_deltas.rds: 08_extract-deltas.R
 	
 out/bayes_y_hats.rds: $(msa_models)
 out/bayes_y_hats.rds: 09_extract-y-hats.R
+	$(call r, $<)
+	
+out/extenstion_tipping-points.png: out/bayes_breakpoints.rds 
+out/extenstion_tipping-points.png: data/tippingsamp_withtps.dta
+out/extenstion_tipping-points.png: 10_plot-tipping-points.R
 	$(call r, $<)

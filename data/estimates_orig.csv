@@ -15,7 +15,7 @@ fp,80,norm_chg_white,-13.6,2,Pooled
 fp,80,norm_chg_min,-1.1,1.1,Pooled
 fp,80,norm_chg_pop,-14.7,2.6,Pooled
 fp,90,norm_chg_white,-7.3,1.5,Pooled
-fp,90,norm_chg_min,1.4,0.8,Pooled
+fp,90,norm_chg_min,2.9,1.1,Pooled
 fp,90,norm_chg_pop,-4.3,2.1,Pooled
 fp,70,norm_chg_white,-14.2,3.1,Fully interacted
 fp,80,norm_chg_white,-17,3.1,Fully interacted
