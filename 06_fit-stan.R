@@ -35,7 +35,7 @@ city <- tp_raw %>%
   arrange(frac_minority)
 
 K <- 4
-bp <- seq(2, 40, by = 1)
+bp <- seq(2, 50, by = 0.5)
 x_poly <- poly(city$frac_minority, degree = K)
 x_pred <- seq(0, 100)
 x_pred_mat <- predict(x_poly, x_pred)
