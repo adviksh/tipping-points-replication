@@ -1,5 +1,10 @@
+# Seed --------------------------------------------------------------------
+set.seed(150)
+
+
 # Timing ------------------------------------------------------------------
 tictoc::tic()
+
 
 # Libraries ---------------------------------------------------------------
 library(here)
@@ -9,11 +14,16 @@ library(tidybayes)
 
 # Helpers -----------------------------------------------------------------
 get_y_hat <- function(fit) {
+  
   draws <- spread_draws(fit, y_hat[x])
-  transmute(draws,
-            draw = .draw,
-            x = x - 1,
-            y_hat = y_hat)
+  
+  # only keep 100 samples
+  which_keep <- sample(unique(draws$.draw), size = 100)
+    
+  draws %>% 
+    ungroup() %>% 
+    filter(.draw %in% which_keep) %>% 
+    select(.draw, x, y_hat)
 }
 
 extract_msa <- function(filename) {
@@ -21,6 +31,7 @@ extract_msa <- function(filename) {
   msa <- str_extract(msa_slug, "[0-9]+")
   as.integer(msa)
 }
+
 
 # Load Data ---------------------------------------------------------------
 message("Loading data...")

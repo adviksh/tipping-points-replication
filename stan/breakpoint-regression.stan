@@ -52,7 +52,7 @@ transformed parameters{
 model {
   alpha ~ normal(0, 100);
   beta  ~ normal(0, 100);
-  delta ~ normal(0, 20);
+  delta ~ normal(0, 100);
   sigma ~ normal(0, 100);
   nu ~ gamma(2, 0.1);
   target += log_sum_exp(lp);
