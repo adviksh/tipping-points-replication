@@ -64,8 +64,7 @@ stan/breakpoint-regression.rds: 05_compile-stan.R
 	$(call r, $<)
 	
 
-temp/bp-reg_msa-%.rds: stan/breakpoint-regression.rds
-temp/bp-reg_msa-%.rds: 06_fit-stan.R
+temp/bp-reg_msa-%.rds: 06_fit-stan.R stan/breakpoint-regression.rds
 	Rscript --vanilla --verbose 06_fit-stan.R $* > log/06_fit-stan_msa-$*.log 2>&1
 	
 	
