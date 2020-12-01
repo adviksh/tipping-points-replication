@@ -102,6 +102,7 @@ replication_plot <- ggplot(estimates,
 
 # Save --------------------------------------------------------------------
 message("Saving...")
-ggsave(here("out", "replication.png"), replication_plot,
+ggsave(here("out", "replication.pdf"), replication_plot,
+       device = cairo_pdf,
        width = 10, height = 7, units = "in")
 

@@ -50,16 +50,15 @@ tp_orig <- tp_orig_raw %>%
                values_to = "tipping_point") %>% 
   mutate(tip_method = str_remove(tip_method, "tp_"),
          tip_method = tidy_tip_method(tip_method),
-         post_prob = 1)
+         post_prob = 1) %>% 
+  inner_join(msa_xwalk, by = "msa")
 
 tp_bayes <- tp_bayes_raw %>% 
   rename(tipping_point = bp_sim,
          post_prob     = prob) %>% 
-  mutate(tip_method = "bayes")
-
-tp <- bind_rows(tp_orig, tp_bayes) %>% 
+  mutate(tip_method = "bayes") %>% 
   inner_join(msa_xwalk, by = "msa")
-  
+
 # Plot --------------------------------------------------------------------
 message("Plotting...")
 colors <- colorblind_pal()(3)
@@ -69,29 +68,38 @@ subtitle_text <- glue("Comparing ",
                       "**<span style='color:{colors[2]};'>CMR structural break</span>**, and ",
                       "**<span style='color:{colors[3]};'>CMR fixed point</span>**")
 
-tp_plot <- ggplot(tp, aes(x = tipping_point,
-               color = tip_method)) +
-  facet_wrap(~ msa_name) +
+tp_plot <- ggplot() +
+  facet_wrap(~ msa_name, ncol = 4) +
   labs(subtitle = subtitle_text,
        x = "Tipping Point",
        y = "Posterior Probability") +
-  theme_bw(base_family = "Lato",
-           base_size = 12) +
+  theme_minimal(base_family = "Lato",
+           base_size = 16) +
   theme(plot.subtitle = element_markdown(hjust = 0.5),
         strip.background = element_blank(),
         panel.grid.minor.x = element_blank(),
         panel.grid.minor.y = element_blank(),
         legend.position = "bottom") +
   scale_color_manual(values = colors, guide = FALSE) +
-  geom_segment(aes(xend = tipping_point,
+  scale_y_continuous(expand = c(0, 0), limits = c(0, 1)) +
+  geom_vline(aes(xintercept = tipping_point,
+                 color = tip_method),
+             tp_orig,
+             size = 1) +
+  geom_segment(aes(x = tipping_point,
+                   xend = tipping_point,
                    y = 0,
-                   yend = post_prob)) +
-  geom_point(aes(y = post_prob),
-             size = 0.4)
-
+                   yend = post_prob,
+                   color = tip_method),
+               tp_bayes) +
+  geom_point(aes(x = tipping_point,
+                 y = post_prob, 
+                 color = tip_method),
+             tp_bayes,
+             size = 0.1)
 
 # Save --------------------------------------------------------------------
 message("Saving...")
-ggsave(here("out", "extension_tipping-points.png"),
-       tp_plot,
-       width = 12, height = 10, units = "in")
+ggsave(here("out", "extension_tipping-points.pdf"),
+       tp_plot, device = cairo_pdf,
+       width = 14, height = 12, units = "in")

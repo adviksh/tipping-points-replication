@@ -74,7 +74,7 @@ make_pooled_data <- function(tip_method, base_year, x_nm, y_nm, data) {
 }
 
 pooled_config <- crossing(tip_method = c("fpneg", "bigt"),
-                         base_year = c("70", "80", "90")) %>% 
+                          base_year = c("70", "80", "90")) %>% 
   mutate(x_nm  = map(base_year, make_pooled_x_names),
          y_nm  = map(base_year, make_pooled_y_names)) %>% 
   mutate(data = pmap(., make_pooled_data, data = tp))
@@ -185,9 +185,11 @@ city_models <- city_config %>%
 message("Processing by-city models...")
 tidy_city_model <- function(model) {
   model %>% 
-    tidy() %>% 
+    tidy(conf.level = 0.8) %>% 
     filter(term == "past") %>% 
     transmute(estimate = estimate,
+              q_10     = conf.low,
+              q_90     = conf.high,
               n        = model$nobs) %>% 
     as_tibble()
 }

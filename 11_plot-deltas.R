@@ -21,6 +21,18 @@ tidy_tip_method <- function(tip_method) {
           fpneg  = "fixed point method")
 }
 
+reweight_city_estimates <- function(estimate, n) {
+  
+  rw_tb <- data.frame(est = estimate, n = n)
+  mod   <- estimatr::lm_robust(est ~ 1, data = rw_tb, se_type = "stata", weights = n)
+  
+  tidy_mod <- broom::tidy(mod)
+  
+  dplyr::transmute(tidy_mod,
+                   estimate = estimate,
+                   se = std.error)
+}
+
 
 # Load Data ---------------------------------------------------------------
 message("Loading data...")
@@ -45,7 +57,8 @@ delta_orig <- delta_orig_raw %>%
          y_nm == "norm_chg_white_7080") %>% 
   transmute(msa,
             tip_method = tidy_tip_method(tip_method),
-            mean       = estimate)
+            mean       = estimate,
+            q_10, q_90)
 
 delta_bayes <- delta_bayes_raw %>% 
   mutate(tip_method = "bayes")
@@ -61,7 +74,7 @@ subtitle_text <- glue("Comparing ",
                       "**<span style='color:{colors[1]};'>Bayesian structural break model</span>**, ",
                       "**<span style='color:{colors[2]};'>CMR structural break</span>**, and ",
                       "**<span style='color:{colors[3]};'>CMR fixed point</span>**")
-dodge_width <- 0.25
+dodge_width <- 0.3
 
 delta_plot <- ggplot(delta,
                      aes(x = msa_name,
@@ -69,10 +82,10 @@ delta_plot <- ggplot(delta,
   coord_flip() +
   labs(subtitle = subtitle_text,
        y = "Change in white population share (pp) at tipping point") +
-  theme_bw(base_family = "Lato",
-           base_size = 12) +
+  theme_minimal(base_family = "Lato",
+                base_size = 12) +
   theme(plot.subtitle = element_markdown(hjust = 0.5),
-        panel.grid.minor.x = element_blank(),
+        panel.grid.major.y = element_blank(),
         axis.title.y = element_blank()) +
   scale_color_manual(values = colors, guide = FALSE) +
   scale_x_discrete(limits = rev) +
@@ -87,6 +100,6 @@ delta_plot <- ggplot(delta,
 
 # Save --------------------------------------------------------------------
 message("Saving...")
-ggsave(here("out", "extension_deltas.png"),
-       delta_plot,
+ggsave(here("out", "extension_deltas.pdf"),
+       delta_plot, device = cairo_pdf,
        height = 12, width = 10, units = "in")
