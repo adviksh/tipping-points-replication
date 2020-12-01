@@ -16,12 +16,15 @@ all: temp/estimates_repl-cmr.rds
 all: temp/tipping_samp.rds
 all: temp/tipping_points.rds
 all: temp/estimates_repl-my-data.rds
-all: out/replication.png
+all: out/replication.pdf
 all: stan/breakpoint-regression.rds
 all: $(msa_models)
 all: out/bayes_breakpoints.rds
 all: out/bayes_deltas.rds
 all: out/bayes_y_hats.rds
+all: out/extension_tipping-points.pdf
+all: out/extension_deltas.pdf
+all: out/replication_tipping-points.pdf
 
 # Recipes ----------------------------------------------------------------------
 $(dirs):
@@ -52,10 +55,10 @@ temp/estimates_repl-my-data.rds: 03_replicate_my-data.R
 	$(call r, $<)
 
 	
-out/replication.png: data/estimates_orig.csv
-out/replication.png: temp/estimates_repl-cmr.rds
-out/replication.png: temp/estimates_repl-my-data.rds
-out/replication.png: 04_plot-replication.R
+out/replication.pdf: data/estimates_orig.csv
+out/replication.pdf: temp/estimates_repl-cmr.rds
+out/replication.pdf: temp/estimates_repl-my-data.rds
+out/replication.pdf: 04_plot-replication.R
 	$(call r, $<)
 	
 	
@@ -79,4 +82,18 @@ out/bayes_deltas.rds: 08_extract-deltas.R
 	
 out/bayes_y_hats.rds: $(msa_models)
 out/bayes_y_hats.rds: 09_extract-y-hats.R
+	$(call r, $<)
+	
+out/extension_tipping-points.pdf: out/bayes_breakpoints.rds 
+out/extension_tipping-points.pdf: data/tippingsamp_withtps.dta
+out/extension_tipping-points.pdf: 10_plot-tipping-points.R
+	$(call r, $<)
+
+out/extension_deltas.pdf: out/bayes_deltas.rds 
+out/extension_deltas.pdf: temp/estimates_delta-cmr.rds 
+out/extension_deltas.pdf: data/tippingsamp_withtps.dta
+out/extension_deltas.pdf: 11_plot-deltas.R
+	$(call r, $<)
+
+out/replication_tipping-points.pdf: 12_plot-tipping_orig-v-repl.R
 	$(call r, $<)

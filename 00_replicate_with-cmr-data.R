@@ -74,7 +74,7 @@ make_pooled_data <- function(tip_method, base_year, x_nm, y_nm, data) {
 }
 
 pooled_config <- crossing(tip_method = c("fpneg", "bigt"),
-                         base_year = c("70", "80", "90")) %>% 
+                          base_year = c("70", "80", "90")) %>% 
   mutate(x_nm  = map(base_year, make_pooled_x_names),
          y_nm  = map(base_year, make_pooled_y_names)) %>% 
   mutate(data = pmap(., make_pooled_data, data = tp))
@@ -185,9 +185,11 @@ city_models <- city_config %>%
 message("Processing by-city models...")
 tidy_city_model <- function(model) {
   model %>% 
-    tidy() %>% 
+    tidy(conf.level = 0.8) %>% 
     filter(term == "past") %>% 
     transmute(estimate = estimate,
+              q_10     = conf.low,
+              q_90     = conf.high,
               n        = model$nobs) %>% 
     as_tibble()
 }
@@ -205,9 +207,12 @@ reweight_city_estimates <- function(estimate, n) {
 }
 
 city_estimates <- city_models %>% 
-  transmute(tip_method, base_year, y_nm,
+  transmute(msa = as.integer(as.character(msa)), 
+            tip_method, base_year, y_nm,
             model     = map(model, tidy_city_model)) %>% 
-  unnest(model) %>% 
+  unnest(model)
+
+city_estimates_avg <- city_estimates %>%   
   group_by(tip_method, base_year, y_nm) %>% 
   summarize(estimates = list(reweight_city_estimates(estimate, n)),
             .groups = "drop") %>% 
@@ -218,13 +223,14 @@ city_estimates <- city_models %>%
 message("Combining regressions...")
 repl_estimates <- bind_rows(mutate(pooled_estimates, 
                                    regression = "Pooled"),
-                            mutate(city_estimates, 
+                            mutate(city_estimates_avg, 
                                    regression = "Fully interacted")) %>% 
   mutate(status = "Replication (CMR Data)")
 
 
 # Save --------------------------------------------------------------------
 message("Saving...")
+write_rds(city_estimates, here("temp", "estimates_delta-cmr.rds"))
 write_rds(repl_estimates, here("temp", "estimates_repl-cmr.rds"))
 
 

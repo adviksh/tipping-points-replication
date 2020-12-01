@@ -79,8 +79,7 @@ replication_plot <- ggplot(estimates,
                                color = status)) +
   facet_grid(y_nm ~ base_year,
              scales = "free") +
-  labs(title = "Pooled RD models for population changes around candidate tipping points",
-       subtitle = subtitle_text,
+  labs(subtitle = subtitle_text,
        shape    = "Tipping point estimated by...",
        y = "Population change (pp)") +
   theme_bw(base_size = 16,
@@ -103,6 +102,7 @@ replication_plot <- ggplot(estimates,
 
 # Save --------------------------------------------------------------------
 message("Saving...")
-ggsave(here("out", "replication.png"), replication_plot,
+ggsave(here("out", "replication.pdf"), replication_plot,
+       device = cairo_pdf,
        width = 10, height = 7, units = "in")
 

@@ -5,6 +5,19 @@ log/*
 # Compiled Stan Models ---------------------------------------------------------
 stan/*.rds
 
+# Extra Data -------------------------------------------------------------------
+card_mas_rothstein_archive_public/*
+data/TRACTDEM.REQ
+data/TRACTDEM.csv
+data/TRACTDEM.doc
+data/elementary_msa_aggregate_9000.dta
+data/landuse.dta
+data/madata.dta
+data/msa_crime_data.dta
+data/riotsind.dta
+data/tract_pair_6_9_06.dta
+data/tractcc.dta
+
 # R Files ----------------------------------------------------------------------
 # History files
 .Rhistory
