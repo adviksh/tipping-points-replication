@@ -62,7 +62,7 @@ message("Fitting stan model...")
 fit <- sampling(model, data = city_data,
                 chains = 8,
                 warmup = 1000,
-                iter = 3000,
+                iter = 3500,
                 pars = c("xb"),
                 include = FALSE,
                 seed = 20310)
